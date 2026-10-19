@@ -1,5 +1,5 @@
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from app.api import routers_treinos
 
 app = FastAPI()

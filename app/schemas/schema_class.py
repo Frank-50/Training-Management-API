@@ -1,14 +1,7 @@
 
 from pydantic import BaseModel
 
-class treino_dinamico(BaseModel):
+class Criar_treinos(BaseModel):
     nome: str
-    type: str
+    tipo: str
     series: int
-    repetiçoes: int
-
-class treino_isomatria(BaseModel):
-    nome: str
-    type: str
-    series: int
-    tempo: float
