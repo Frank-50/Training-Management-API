@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from http import HTTPStatus
-from app.schemas.schema_class import Criar_treinos
+from app.schemas.schema_class import Criar_treinos, Atualizar_treinos
 
 router = APIRouter()
 
@@ -29,7 +29,7 @@ def criar_treino(treino: Criar_treinos):
 
 
 #Rota GET: recebe uma requisição http no parametro `treino_id` onde ela vai filtra o treino específico que que seja igual ao id da requisição, 
-# se o `treino[id]` for igual a lista `treinos`, e o FastAPI
+#se o `treino[id]` for igual a lista `treinos`, e o FastAPI
 #converte ela para JSON e retorna 200 (OK). se o id não for encontrado, ele devolve 404 (NOT FOUND)
 @router.get('/{treino_id}', status_code=HTTPStatus.OK)
 def filtra_treinos(treino_id: int):
@@ -37,4 +37,18 @@ def filtra_treinos(treino_id: int):
     for treino in treinos:
         if treino["id"] == treino_id:
             return treino
-    raise HTTPException(status_code=404, detail="Treino não encontrado")
+    raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Treino não encontrado")
+
+#Rota PATCH: Recebe o `treino_id` pela URL e um JSON no parametro `novo_treino`, validado pela classe `Atualizar_treinos` (todos os campos são opcionais possuindo None).
+#O loop for procura o treino com aquele id. se acha o model_dump(exclude_unset=True), transforma em dicionario so com os campos que o usuário realmente envio em novo_treino.
+#e `update()` sobrescreve apenas essas chaves, sem mexer nas outras. devolve o treino atualizado (200). se caso o loop terminar e o id não for encontrado, devolver (404).
+@router.patch('/{treino_id}', status_code=HTTPStatus.OK)
+def atualizar_treino(treino_id: int, novo_treino: Atualizar_treinos):
+
+    for treino in treinos: # `treino` e uma variavel temporaria que recebe um item da lista `treinos` acada vez que o loop roda
+        if treino["id"] == treino_id:
+            #model.dump(exclude_unset=True), Transforma os dados em dicionario só com os campos que o usuário realmente enviou
+            #exclude_unset=True -> Sem ele os campos enviados viriam como None e apagariam os valores antigos.
+            treino.update(novo_treino.model_dump(exclude_unset=True)) 
+            return treino
+    raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Treino não encontrado")
